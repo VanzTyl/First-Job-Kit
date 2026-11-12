@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tailor — resume, match, review (SYNTHETIC prototype)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-demo-state="">
+
+<a class="skip-link" href="#main">Skip to the current screen</a>
+
+<header class="app-header">
+  <div class="app-title">
+    <span class="wordmark">Tailor</span>
+    <span class="badge badge-synthetic">SYNTHETIC DATA</span>
+  </div>
+  <p class="app-sub">
+    A resume is read, matched against listings, and proposed back with changes you review one at a
+    time. Nothing leaves this page.
+  </p>
+  <p class="app-byline">Prepared by Christian Leonard De Guzman · Romm James Cuya · James Marius Panado · Samuel Eisyss Odoño</p>
+</header>
+
+<nav class="stepper" aria-label="Prototype screens">
+  <ol id="stepper-list">
+    <li><button type="button" class="step" data-goto="01" aria-current="step"><span class="step-num">01</span> Upload</button></li>
+    <li><button type="button" class="step" data-goto="02"><span class="step-num">02</span> Sections</button></li>
+    <li><button type="button" class="step" data-goto="03"><span class="step-num">03</span> Keywords</button></li>
+    <li><button type="button" class="step" data-goto="04"><span class="step-num">04</span> Matches</button></li>
+    <li><button type="button" class="step" data-goto="05"><span class="step-num">05</span> Listing</button></li>
+    <li><button type="button" class="step" data-goto="06"><span class="step-num">06</span> Tailoring</button></li>
+    <li><button type="button" class="step" data-goto="07"><span class="step-num">07</span> Result</button></li>
+    <li><button type="button" class="step" data-goto="08"><span class="step-num">08</span> States</button></li>
+  </ol>
+</nav>
+
+<p id="live-region" class="visually-hidden" role="status" aria-live="polite"></p>
+
+<main id="main" tabindex="-1">
+
+  <!-- ============================== 01 UPLOAD ============================== -->
+  <section class="screen" id="screen-01" data-screen="01" aria-labelledby="h-01">
+    <h2 id="h-01" tabindex="-1">Upload a resume</h2>
+    <p class="lede">
+      Accepted before you pick anything: <strong>.md</strong> and <strong>.txt</strong> are read here,
+      <strong>.pdf</strong> works when a text layer exists, and <strong>.docx</strong> needs a Word
+      loader this page does not have. Maximum size <strong>2 MB</strong>. Files are read in this
+      browser tab and are not uploaded.
+    </p>
+
+    <div class="dropzone" id="dropzone">
+      <p class="dropzone-title">Drop a resume here</p>
+      <p class="muted">or use the button below. Markdown and plain text work best.</p>
+      <div class="row">
+        <label class="button button-primary" for="file-input">Choose a file</label>
+        <input id="file-input" type="file" accept=".md,.txt,.pdf,.docx" class="visually-hidden">
+        <button type="button" class="button" id="use-sample">Use the synthetic sample resume</button>
+      </div>
+      <p class="hint" id="file-hint">No file chosen yet.</p>
+    </div>
+
+    <div id="upload-error" class="panel panel-error" role="alert" hidden>
+      <p class="status-line"><span class="status-icon" aria-hidden="true">!</span><strong>That file cannot be read.</strong></p>
+      <p id="upload-error-message"></p>
+      <p id="upload-error-fix" class="fix"></p>
+    </div>
+
+    <div id="upload-progress" class="panel" hidden>
+      <p class="status-line"><span class="status-icon status-icon-busy" aria-hidden="true">◐</span><strong>Parsing</strong></p>
+      <div class="bar" role="progressbar" aria-label="Parsing progress, duration unknown"
+           aria-valuetext="Working, duration unknown">
+        <div class="bar-fill bar-fill-indeterminate"></div>
+      </div>
+      <p class="muted" id="upload-stage">Reading file…</p>
+      <button type="button" class="button button-quiet" id="cancel-parse">Cancel parsing</button>
+    </div>
+
+    <div id="upload-done" class="panel panel-success" hidden>
+      <p class="status-line"><span class="status-icon" aria-hidden="true">✓</span><strong>File read.</strong> Sections were detected.</p>
+      <p class="muted">Nothing has been matched yet. You will see what was detected before any matching runs.</p>
+    </div>
+
+    <div id="upload-cancelled" class="panel" hidden>
+      <p class="status-line"><span class="status-icon" aria-hidden="true">■</span><strong>Parsing cancelled.</strong></p>
+      <p class="muted">The file was not kept. Nothing was read into memory beyond the first stage.</p>
+      <button type="button" class="button" id="resume-parse">Start again</button>
+    </div>
+
+    <p class="actions">
+      <button type="button" class="button button-primary" data-goto="02" id="to-sections">Check the detected sections</button>
+    </p>
+  </section>
+
+  <!-- ============================== 02 SECTIONS ============================== -->
+  <section class="screen" id="screen-02" data-screen="02" aria-labelledby="h-02" hidden>
+    <h2 id="h-02" tabindex="-1">Check what was detected</h2>
+    <p class="lede">
+      A section read wrongly would poison every match after it, so the whole parse is on screen first.
+      Rename, merge, split, or discard anything that is wrong. Confidence is a number with reasons
+      attached, not a mood.
+    </p>
+    <p class="note">
+      The mockup runs its own small heading scan over the sample text, which is its own file
+      (<code>sample_resume.md</code>) and not the notebook's fixture. Until you upload something, the
+      cards below are that sample. The notebook in <code>../notebook/</code> has the full sectionizer,
+      including the unclassified bucket, and shares no code with this page.
+    </p>
+
+    <ul id="section-list" class="card-list"></ul>
+
+    <div id="unclassified-card" class="panel panel-quiet"></div>
+
+    <p class="actions">
+      <button type="button" class="button button-primary" data-goto="03">Check the extracted terms</button>
+    </p>
+  </section>
+
+  <!-- ============================== 03 KEYWORDS ============================== -->
+  <section class="screen" id="screen-03" data-screen="03" aria-labelledby="h-03" hidden>
+    <h2 id="h-03" tabindex="-1">Terms taken from the resume</h2>
+    <p class="lede">
+      Grouped, counted, and traceable to a line. Remove anything you do not want used, and type in
+      anything the system missed. Your additions are marked as yours.
+    </p>
+
+    <div id="keyword-groups"></div>
+
+    <form id="add-term-form" class="inline-form">
+      <label for="new-term">Add a term yourself</label>
+      <input id="new-term" name="new-term" type="text" autocomplete="off" aria-describedby="new-term-help">
+      <button type="submit" class="button">Add term</button>
+      <p class="hint" id="new-term-help">Added terms are labelled “added by you” and are never counted as something the system found.</p>
+    </form>
+
+    <p class="actions">
+      <button type="button" class="button button-primary" data-goto="04">See the ranked listings</button>
+    </p>
+  </section>
+
+  <!-- ============================== 04 MATCHES ============================== -->
+  <section class="screen" id="screen-04" data-screen="04" aria-labelledby="h-04" hidden>
+    <h2 id="h-04" tabindex="-1">Listings ranked by shared terms</h2>
+    <p class="lede">
+      The percentage is a share of the listing's vocabulary, not a judgement about you, and every card
+      opens into the terms behind it.
+    </p>
+    <p class="note">
+      These six scores are fixed sample output. Adding or removing terms on screen 03 does not re-rank
+      them, because this page has no ranker in it: the scoring lives in the notebook in
+      <code>../notebook/</code>. Nothing on this screen was measured from a person.
+    </p>
+
+    <div class="filter-bar">
+      <div class="field">
+        <label for="filter-reason">Filter by reason</label>
+        <select id="filter-reason">
+          <option value="all">All listings</option>
+          <option value="gaps">Has a must-have gap</option>
+          <option value="five">Five or more shared terms</option>
+          <option value="nine">Nine or more shared terms</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="filter-search">Search title or company</label>
+        <input id="filter-search" type="search" autocomplete="off">
+      </div>
+      <p class="hint" id="result-count" aria-live="polite">6 listings.</p>
+    </div>
+
+    <ul id="match-list" class="card-list"></ul>
+
+    <div id="match-empty" class="panel panel-quiet" hidden>
+      <p class="status-line"><span class="status-icon" aria-hidden="true">○</span><strong>No listings meet that filter.</strong></p>
+      <p class="muted">Nothing was hidden from you. The filter is the reason the list is empty.</p>
+      <p class="fix">Widen the search: lower the shared-term requirement, or add a term to your resume yourself.</p>
+      <button type="button" class="button" id="widen-search">Widen the search</button>
+    </div>
+
+    <p class="actions">
+      <button type="button" class="button button-primary" data-goto="05">Open the selected listing</button>
+    </p>
+  </section>
+
+  <!-- ============================== 05 LISTING ============================== -->
+  <section class="screen" id="screen-05" data-screen="05" aria-labelledby="h-05" hidden>
+    <h2 id="h-05" tabindex="-1">Requirements against your evidence</h2>
+    <p class="lede">
+      Each requirement is checked against what your resume already says. A requirement with no evidence
+      stays empty: the system will not write experience for you, and the decision is yours.
+    </p>
+
+    <div id="listing-header" class="panel panel-plain"></div>
+
+    <ul id="requirement-list" class="req-list"></ul>
+
+    <p class="hint" id="gap-summary" aria-live="polite"></p>
+
+    <p class="actions">
+      <button type="button" class="button button-primary" id="to-tailoring">Propose changes for this listing</button>
+    </p>
+  </section>
+
+  <!-- ============================== 06 TAILORING ============================== -->
+  <section class="screen" id="screen-06" data-screen="06" aria-labelledby="h-06" hidden>
+    <h2 id="h-06" tabindex="-1">Review each proposed change</h2>
+    <p class="lede">
+      Every proposal is a proposal. It changes nothing until you accept it, and it carries the line it
+      came from. If the duration is unknown, this page says so instead of inventing a percentage.
+    </p>
+
+    <div id="tailor-idle" class="panel panel-plain">
+      <p class="status-line"><span class="status-icon" aria-hidden="true">□</span><strong>No proposals yet.</strong></p>
+      <p class="muted">Generating proposals reads only your resume and the listing on screen 05.</p>
+      <button type="button" class="button button-primary" id="generate">Generate proposals</button>
+    </div>
+
+    <div id="tailor-progress" class="panel" hidden>
+      <p class="status-line"><span class="status-icon status-icon-busy" aria-hidden="true">◐</span><strong>Working</strong> — duration unknown</p>
+      <div class="bar" role="progressbar" aria-label="Generating proposals, duration unknown"
+           aria-valuetext="Working, duration unknown">
+        <div class="bar-fill bar-fill-indeterminate"></div>
+      </div>
+      <p class="muted" id="tailor-stage">Reading the listing's requirements…</p>
+      <button type="button" class="button button-quiet" id="cancel-tailor">Cancel</button>
+    </div>
+
+    <div id="tailor-cancelled" class="panel" hidden>
+      <p class="status-line"><span class="status-icon" aria-hidden="true">■</span><strong>Cancelled at your request.</strong></p>
+      <p class="muted">No proposals were kept. Your resume is unchanged.</p>
+      <button type="button" class="button" id="resume-tailor">Generate again</button>
+    </div>
+
+    <div id="tailor-review" hidden>
+      <p class="counter" id="review-counter" aria-live="polite">0 of 4 reviewed</p>
+      <ul id="change-list" class="card-list"></ul>
+      <p class="actions">
+        <button type="button" class="button button-primary" data-goto="07">Go to the export view</button>
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================== 07 RESULT ============================== -->
+  <section class="screen" id="screen-07" data-screen="07" aria-labelledby="h-07" hidden>
+    <h2 id="h-07" tabindex="-1">Compare, then export</h2>
+    <p class="lede">
+      Original and proposed, section by section, with the full ledger underneath. Export writes a file
+      to your device. It does not send it, submit it, or tell anyone it exists.
+    </p>
+
+    <figure class="legend">
+      <figcaption>How the two columns relate</figcaption>
+      <p><span class="tag tag-kept">unchanged</span> the same text in both columns &nbsp;
+         <span class="tag tag-changed">changed</span> a proposal you accepted &nbsp;
+         <span class="tag tag-skipped">rejected</span> a proposal you rejected</p>
+    </figure>
+
+    <div id="compare" class="compare"></div>
+
+    <h3>Change ledger</h3>
+    <div class="table-wrap">
+      <table class="ledger">
+        <caption class="visually-hidden">Every proposal, its decision, and where it came from</caption>
+        <thead>
+          <tr><th scope="col">ID</th><th scope="col">Kind</th><th scope="col">Where</th>
+              <th scope="col">Decision</th><th scope="col">Reason</th><th scope="col">Source</th></tr>
+        </thead>
+        <tbody id="ledger-body"></tbody>
+      </table>
+    </div>
+
+    <div class="export-bar">
+      <button type="button" class="button button-primary" id="export-md">Download the tailored resume (.md)</button>
+      <button type="button" class="button" id="export-csv">Download the ledger (.csv)</button>
+      <button type="button" class="button button-quiet" id="undo-change">Undo the last decision</button>
+      <button type="button" class="button button-quiet" id="start-over">Start over</button>
+    </div>
+
+    <div id="export-status" class="panel panel-success" role="status" hidden>
+      <p class="status-line"><span class="status-icon" aria-hidden="true">✓</span><strong>Downloaded to your device. Nothing was sent anywhere.</strong></p>
+      <p class="muted" id="export-detail"></p>
+    </div>
+
+    <div id="export-failed" class="panel panel-error" role="alert" hidden>
+      <p class="status-line"><span class="status-icon" aria-hidden="true">!</span><strong>The download did not start.</strong></p>
+      <p class="fix">Allow downloads for this page in your browser settings, then press the export button again. Your decisions are still here.</p>
+    </div>
+  </section>
+
+  <!-- ============================== 08 STATES ============================== -->
+  <section class="screen" id="screen-08" data-screen="08" aria-labelledby="h-08" hidden>
+    <h2 id="h-08" tabindex="-1">Every state, on purpose</h2>
+    <p class="lede">
+      A reviewer should be able to see the states without editing code. The panel at the bottom right
+      forces any screen into any state. “Focused” and “pressed” are produced by actually focusing and
+      pressing the screen's main control, so they are the real thing rather than a picture of it.
+    </p>
+
+    <table class="state-table">
+      <caption>What each forced state is meant to show</caption>
+      <thead><tr><th scope="col">State</th><th scope="col">What it proves</th></tr></thead>
+      <tbody>
+        <tr><td>idle</td><td>The screen as it looks before anyone acts. No status is implied.</td></tr>
+        <tr><td>focused</td><td>A visible focus ring on the primary control, using the real focus state.</td></tr>
+        <tr><td>pressed</td><td>The pressed appearance, held long enough to look at.</td></tr>
+        <tr><td>processing</td><td>Indeterminate progress with the current stage named and a way to cancel.</td></tr>
+        <tr><td>success</td><td>An outcome stated in words and an icon, not colour alone.</td></tr>
+        <tr><td>failed</td><td>What happened, what is preserved, and the next action.</td></tr>
+        <tr><td>cancelled</td><td>That stopping was allowed, and what the stop did to the work.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="panel panel-plain">
+      <p><strong>Grayscale check.</strong> Turn the screen grey with your operating system or a browser
+      extension and walk the eight screens. Every status keeps its word and its icon, because colour is
+      never the only cue. The three measured contrast pairs are listed in
+      <code>G1_G3_checks.md</code>.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============================== DEV PANEL ============================== -->
+<aside class="dev-panel" id="dev-panel" aria-labelledby="dev-title">
+  <div class="dev-head">
+    <h2 id="dev-title">State inspector</h2>
+    <button type="button" class="button button-quiet" id="dev-toggle" aria-expanded="true">Hide</button>
+  </div>
+  <p class="dev-note">Demo control. Not part of the product.</p>
+  <div class="dev-row">
+    <label for="dev-screen">Screen</label>
+    <select id="dev-screen">
+      <option value="01">01 Upload</option>
+      <option value="02">02 Sections</option>
+      <option value="03">03 Keywords</option>
+      <option value="04">04 Matches</option>
+      <option value="05">05 Listing</option>
+      <option value="06">06 Tailoring</option>
+      <option value="07">07 Result</option>
+      <option value="08">08 States</option>
+    </select>
+  </div>
+  <div class="dev-row dev-states" id="dev-state-buttons">
+    <button type="button" class="button button-tiny" data-force="idle">idle</button>
+    <button type="button" class="button button-tiny" data-force="focused">focused</button>
+    <button type="button" class="button button-tiny" data-force="pressed">pressed</button>
+    <button type="button" class="button button-tiny" data-force="processing">processing</button>
+    <button type="button" class="button button-tiny" data-force="success">success</button>
+    <button type="button" class="button button-tiny" data-force="failed">failed</button>
+    <button type="button" class="button button-tiny" data-force="cancelled">cancelled</button>
+  </div>
+  <div class="forced-note" id="forced-note" hidden></div>
+</aside>
+
+<script src="data/sample-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
